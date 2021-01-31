@@ -1,4 +1,4 @@
-
+const Employee = require("./lib/Employee")
 var inquirer = require('inquirer');
 
 const startQuestion = [
@@ -132,12 +132,12 @@ function addEmployee() {
     .prompt([
         {
             type: "input",
-            name: "addEmployee",
+            name: "firstName",
             message: "Enter new Employee first name"
         },
         {
             type: "input",
-            name: "addEmployee",
+            name: "lastName",
             message: "Enter new Employee last name"
         },
         {
@@ -151,8 +151,10 @@ function addEmployee() {
             message: "Enter new Employee's manager's id"
         },
     ])
-    .then(answers => {
-        console.log(answers)
+    .then(response => {
+
+        const employee = new Employee (response.firstName, response.lastName, response.roleId, response.managerId)
+        console.log(employee)
     })
     .catch(error => {
         if (error.isTtyError) {

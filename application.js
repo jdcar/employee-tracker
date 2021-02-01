@@ -21,7 +21,6 @@ connection.connect(err => {
     console.log(`Connected as id ${connection.threadId}`)
 
     // getData()
-
 })
 
 
@@ -56,29 +55,42 @@ const startQuestion = [
     }
 
 ]
-// start()
-viewAllEmployees()
 
-//
-// viewAll(){
-//     // working on view all
-// connection.query(`SELECT employees.id, employees.firstName, employees.lastName, role. , department. , role.salary
-
-// FROM employees
-// FULL OUTER JOIN Customers 
-
-// ON Orders.CustomerID=Customers.CustomerID;`, (err, data) => {
-//     if (err) throw err
-//     console.table(data)
-//     start()
-
-// })
+viewAll()
 
 
-// }
+function viewAll() {
+    // working on view all
+    connection.query(`SELECT employees.employeeId, employees.firstName, employees.lastName, role.role, role.salary, department.departmentName
+FROM department INNER JOIN (employees INNER JOIN role ON employees.roleId = role.roleId) ON department.departmentId = role.departmentId;
+`, (err, data) => {
+        if (err) throw err
+        console.table(data)
+        console.log("")
+
+    })
+
+    connection.query(`SELECT * FROM department`, (err, data) => {
+        if (err) throw err
+        console.table(data)
+        console.log("")
+
+    })
+
+    connection.query("SELECT * FROM role", (err, data) => {
+        if (err) throw err
+        console.table(data)
+        console.log("")
+        start()
+    })
+    
+    
+    
+}
 
 // 
 function start() {
+    console.log("")
     inquirer
         .prompt(startQuestion)
         .then(answers => {
@@ -106,7 +118,7 @@ function start() {
             if (answers.todo == 'Update Employee Role') {
                 updateEmployeeRole(answers.todo)
             }
-            
+
 
             // console.log(answers)
         })
@@ -295,13 +307,12 @@ function viewAllEmployees() {
 
 function updateEmployeeRole() {
 
-
     inquirer
         .prompt([
             {
                 type: "input",
                 name: "chooseEmployee",
-                message: "Enter Employee name"
+                message: "Enter Employee last name"
             },
             {
                 type: "input",
@@ -320,8 +331,8 @@ function updateEmployeeRole() {
                 function (err, res) {
                     if (err) throw err;
                     console.log(res.affectedRows);
-                  // Call deleteProduct AFTER the UPDATE completes
-                  
+                    // Call deleteProduct AFTER the UPDATE completes
+
                 }
             );
 

@@ -1,4 +1,3 @@
-const Employee = require("./lib/Employee")
 var inquirer = require('inquirer');
 var mysql = require("mysql");
 
@@ -57,7 +56,8 @@ const startQuestion = [
     }
 
 ]
-start()
+// start()
+viewAllEmployees()
 function start() {
     inquirer
         .prompt(startQuestion)
@@ -83,9 +83,10 @@ function start() {
             if (answers.todo == 'View all employees') {
                 viewAllEmployees(answers.todo)
             }
-            if (answers.todo == 'View all employees') {
+            if (answers.todo == 'Update Employee Role') {
                 updateEmployeeRole(answers.todo)
             }
+            
 
             // console.log(answers)
         })
@@ -108,7 +109,22 @@ function addDepartment() {
         ])
         .then(answers => {
 
-            console.log(answers)
+            var query = connection.query(
+                "INSERT INTO department SET ?",
+                {
+                    departmentName: answers.addDepartment
+                },
+                function (err, res) {
+                    if (err) throw err;
+                    console.log(res.affectedRows);
+                    // Call updateProduct AFTER the INSERT completes
+                }
+            );
+
+            // logs the actual query being run
+            console.log(query.sql);
+            start();
+
             // Add new department to the table
         })
         .catch(error => {
@@ -134,15 +150,30 @@ function addRole() {
                 name: "addSalary",
                 message: "Enter new role salary"
             },
-            // {
-            //     type: "input",
-            //     name: "deptId",
-            //     message: "Enter department ID"
-            // },
+            {
+                type: "input",
+                name: "deptId",
+                message: "Enter department ID"
+            },
         ])
         .then(answers => {
-            console.log(answers)
+            var query = connection.query(
+                "INSERT INTO role SET ?",
+                {
+                    role: answers.addRole,
+                    salary: answers.addSalary,
+                    departmentId: answers.deptId
+                },
+                function (err, res) {
+                    if (err) throw err;
+                    console.log(res.affectedRows);
+                    // Call updateProduct AFTER the INSERT completes
+                }
+            );
 
+            // logs the actual query being run
+            console.log(query.sql);
+            start();
         })
         .catch(error => {
             if (error.isTtyError) {
@@ -179,10 +210,25 @@ function addEmployee() {
         ])
         .then(response => {
 
-            const employee = new Employee(response.firstName, response.lastName, response.roleId, response.managerId)
+            var query = connection.query(
+                "INSERT INTO employees SET ?",
+                {
+                    firstName: response.firstName,
+                    lastName: response.lastName,
+                    roleId: response.roleId,
+                    managerId: response.managerId
+                },
 
+                function (err, res) {
+                    if (err) throw err;
+                    console.log(res.affectedRows);
+                    // Call updateProduct AFTER the INSERT completes
+                }
 
-            console.log(employee)
+            );
+            console.log(query.sql);
+            start();
+
         })
         .catch(error => {
             if (error.isTtyError) {
@@ -199,7 +245,7 @@ function viewAllDepartments() {
 
     connection.query(`SELECT * FROM department`, (err, data) => {
         if (err) throw err
-        console.log(data)
+        console.table(data)
         start()
 
     })
@@ -211,7 +257,7 @@ function viewAllRoles() {
     //    Display all roles
     connection.query(`SELECT * FROM role`, (err, data) => {
         if (err) throw err
-        console.log(data)
+        console.table(data)
         start()
 
     })
@@ -222,12 +268,14 @@ function viewAllEmployees() {
     // Display all employees
     connection.query(`SELECT * FROM employees`, (err, data) => {
         if (err) throw err
-        console.log(data)
+        console.table(data)
         start()
     })
 }
 
 function updateEmployeeRole() {
+
+
     inquirer
         .prompt([
             {
@@ -237,12 +285,32 @@ function updateEmployeeRole() {
             },
             {
                 type: "input",
-                name: "chooseEmployee",
-                message: "Enter Employee's new role"
+                name: "chooseRoleId",
+                message: "Enter Employee's new role ID"
             },
         ])
         .then(answers => {
-            console.log(answers)
+            var query = connection.query(
+                `UPDATE employees SET "roleId" WHERE "${answers.chooseEmployee}"`,
+                [
+                    {
+                        roleId: answers.chooseRoleId
+                    }
+                ],
+                function (err, res) {
+                    if (err) throw err;
+                    console.log(res.affectedRows);
+                  // Call deleteProduct AFTER the UPDATE completes
+                  
+                }
+            );
+
+            // logs the actual query being run
+            console.log(query.sql);
+            start();
+
+
+
         })
         .catch(error => {
             if (error.isTtyError) {

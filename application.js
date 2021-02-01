@@ -58,6 +58,26 @@ const startQuestion = [
 ]
 // start()
 viewAllEmployees()
+
+//
+// viewAll(){
+//     // working on view all
+// connection.query(`SELECT employees.id, employees.firstName, employees.lastName, role. , department. , role.salary
+
+// FROM employees
+// FULL OUTER JOIN Customers 
+
+// ON Orders.CustomerID=Customers.CustomerID;`, (err, data) => {
+//     if (err) throw err
+//     console.table(data)
+//     start()
+
+// })
+
+
+// }
+
+// 
 function start() {
     inquirer
         .prompt(startQuestion)

@@ -26,7 +26,7 @@ connection.connect(err => {
 
 const startQuestion = [
     {
-        type: 'checkbox',
+        type: 'list',
         message: 'What would you like to do?',
         name: "todo",
         choices: [
@@ -40,7 +40,8 @@ const startQuestion = [
             'View all Roles',
             'View all employees',
             // Update
-            'Update Employee Role'
+            'Update Employee Role',
+            'Exit'
 
             // Bonus
             // 'Update Employee Manager',  
@@ -61,7 +62,7 @@ viewAll()
 
 function viewAll() {
     // working on view all
-    connection.query(`SELECT employees.employeeId, employees.firstName, employees.lastName, role.role, role.salary, department.departmentName
+    connection.query(`SELECT employees.employeeId, employees.firstName, employees.lastName, role.role, role.salary, department.departmentName, employees.managerId
 FROM department INNER JOIN (employees INNER JOIN role ON employees.roleId = role.roleId) ON department.departmentId = role.departmentId;
 `, (err, data) => {
         if (err) throw err
@@ -80,6 +81,7 @@ FROM department INNER JOIN (employees INNER JOIN role ON employees.roleId = role
     connection.query("SELECT * FROM role", (err, data) => {
         if (err) throw err
         console.table(data)
+
         console.log("")
         start()
     })
@@ -117,6 +119,8 @@ function start() {
             }
             if (answers.todo == 'Update Employee Role') {
                 updateEmployeeRole(answers.todo)
+            } else if (answers.todo =='Exit') {
+                process.exit()
             }
 
 
@@ -252,9 +256,12 @@ function addEmployee() {
                 },
 
                 function (err, res) {
+
                     if (err) throw err;
                     console.log(res.affectedRows);
+                    console.log(query.sql);
                     // Call updateProduct AFTER the INSERT completes
+                    
                 }
 
             );
@@ -278,6 +285,7 @@ function viewAllDepartments() {
     connection.query(`SELECT * FROM department`, (err, data) => {
         if (err) throw err
         console.table(data)
+
         start()
 
     })
@@ -289,7 +297,10 @@ function viewAllRoles() {
     //    Display all roles
     connection.query(`SELECT * FROM role`, (err, data) => {
         if (err) throw err
+        
         console.table(data)
+        
+
         start()
 
     })
@@ -301,6 +312,7 @@ function viewAllEmployees() {
     connection.query(`SELECT * FROM employees`, (err, data) => {
         if (err) throw err
         console.table(data)
+        console.log(data)
         start()
     })
 }
@@ -351,3 +363,10 @@ function updateEmployeeRole() {
             }
         });
 }
+
+
+// Current issues:
+// Display manager name in show all employees query
+// Allow for blank manager
+// Update employee role
+// Exit query

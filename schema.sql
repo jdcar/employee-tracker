@@ -8,7 +8,7 @@ create table employees (
     firstName varchar  (30),
     lastName varchar (100),
 	roleId INT(10),
-    managerId INT(10),
+    managerId INT(10) DEFAULT 0,
     primary key (employeeId)
 );
 

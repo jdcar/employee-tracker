@@ -322,7 +322,7 @@ function viewAllDepartments() {
 
 function viewAllRoles() {
     //    Display all roles
-    connection.query(`SELECT * FROM role`, (err, data) => {
+    connection.query(`SELECT * FROM role LEFT JOIN department ON role.departmentId = department.departmentId`, (err, data) => {
         if (err) throw err
         console.table(data)
         start()
@@ -333,7 +333,8 @@ function viewAllRoles() {
 
 function viewAllEmployees() {
     // Display all employees
-    connection.query(`SELECT * FROM employees`, (err, data) => {
+    connection.query(`SELECT e.*, CONCAT (m.firstName, ' ', m.lastName) AS manager FROM employees AS e
+    LEFT JOIN employees AS m ON e.managerId = m.employeeId;`, (err, data) => {
         if (err) throw err
         console.table(data)
         start()

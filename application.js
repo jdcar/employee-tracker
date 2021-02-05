@@ -19,8 +19,6 @@ var connection = mysql.createConnection({
 connection.connect(err => {
     if (err) throw err
     console.log(`Connected as id ${connection.threadId}`)
-
-    // getData()
 })
 
 
@@ -59,23 +57,18 @@ const startQuestion = [
 
 viewAll()
 
-
 function viewAll() {
     // working on view all
     connection.query(`SELECT e.*, CONCAT (m.firstName, ' ', m.lastName) AS manager FROM employees AS e
-    LEFT JOIN employees AS m ON e.managerId = m.employeeId;;
-`, (err, data) => {
+    LEFT JOIN employees AS m ON e.managerId = m.employeeId;`, (err, data) => {
         if (err) throw err
         console.table(data)
-        console.log("")
         start()
     })
 
 }
 
-// 
 function start() {
-    console.log("")
     inquirer
         .prompt(startQuestion)
         .then(answers => {
@@ -94,7 +87,7 @@ function start() {
                     console.table(data)
                     addRole(answers.todo)
                 })
-                
+
             }
             if (answers.todo == 'Add Employee') {
                 addEmployee(answers.todo)
@@ -126,7 +119,6 @@ function start() {
         });
 }
 function addDepartment() {
-
 
     inquirer
         .prompt([
@@ -165,11 +157,10 @@ function addDepartment() {
         });
 }
 
-
 function addRole() {
 
     const departmentArray = []
-    connection.query(`SELECT departmentName FROM department`, (err, data) => {
+    connection.query(`SELECT department.departmentName, department.departmentId FROM department;`, (err, data) => {
         if (err) throw err
         data.forEach(element => departmentArray.push(element.departmentName))
     })
@@ -188,29 +179,36 @@ function addRole() {
             },
             {
                 type: "list",
-                name: "department",
+                name: "department_name",
                 message: "Select department",
                 choices: departmentArray
             },
         ])
         .then(answers => {
-            var query = connection.query(
-                "INSERT INTO role SET ?",
-                {
-                    role: answers.addRole,
-                    salary: answers.addSalary,
-                    departmentId: answers.deptId
-                },
-                function (err, res) {
-                    if (err) throw err;
-                    console.log(res.affectedRows);
-                    // Call updateProduct AFTER the INSERT completes
-                }
-            );
 
-            // logs the actual query being run
-            console.log(query.sql);
-            start();
+            connection.query(`SELECT department.departmentId FROM department WHERE departmentName = "${answers.department_name}";`, (err, data) => {
+                if (err) throw err
+                const dept_id = data[0].departmentId
+                console.log(dept_id)
+
+                var query = connection.query(
+                    "INSERT INTO role SET ?",
+                    {
+                        role: answers.addRole,
+                        salary: answers.addSalary,
+                        departmentId: dept_id
+                    },
+                    function (err, res) {
+                        if (err) throw err;
+                        console.log(res.affectedRows);
+                        // Call updateProduct AFTER the INSERT completes
+                    }
+                );
+
+                // logs the actual query being run
+                console.log(query.sql);
+                start();
+            })
         })
         .catch(error => {
             if (error.isTtyError) {
@@ -228,12 +226,12 @@ function addEmployee() {
         data.forEach(element => roleArray.push(element.role))
     })
 
-    const employeesArray = []
-    connection.query(`SELECT employees.firstName, employees.lastName FROM employees`, (err, data) => {
+    const managersArray = []
+    connection.query(`SELECT CONCAT (employees.firstName, ' ', employees.lastName) AS manager FROM employees;`, (err, data) => {
         if (err) throw err
 
-        data.forEach(element => employeesArray.push(element.firstName + " " + element.lastName))
-
+        data.forEach(element => managersArray.push(element.manager))
+        // console.log(managersArray)
     })
     inquirer
         .prompt([
@@ -257,33 +255,46 @@ function addEmployee() {
                 type: "list",
                 name: "manager",
                 message: "Select new Employee's manager",
-                choices: employeesArray
+                choices: managersArray
             },
         ])
-        .then(response => {
+        .then(answers => {
+            // 
+            connection.query(`SELECT roleId, role FROM role WHERE role = "${answers.role}"`, (err, data) => {
+                if (err) throw err
+                const role_id = data[0].roleId
+                console.log(role_id)
 
-            var query = connection.query(
-                "INSERT INTO employees SET ?",
-                {
-                    firstName: response.firstName,
-                    lastName: response.lastName,
-                    roleId: response.roleId,
-                    managerId: response.managerId
-                },
 
-                function (err, res) {
 
-                    if (err) throw err;
-                    console.log(res.affectedRows);
+                connection.query(`SELECT * , CONCAT (employees.firstName, ' ', employees.lastName) AS manager FROM employees WHERE CONCAT (employees.firstName, ' ', employees.lastName) = "${answers.manager}";`, (err, data) => {
+                    if (err) throw err
+                    const manager_id = data[0].employeeId
+
+
+                    var query = connection.query(
+                        "INSERT INTO employees SET ?",
+                        {
+                            firstName: answers.firstName,
+                            lastName: answers.lastName,
+                            roleId: role_id,
+                            managerId: manager_id
+                        },
+
+                        function (err, res) {
+
+                            if (err) throw err;
+                            console.log(res.affectedRows);
+                            console.log(query.sql);
+                            // Call updateProduct AFTER the INSERT completes
+
+                        }
+
+                    );
                     console.log(query.sql);
-                    // Call updateProduct AFTER the INSERT completes
-
-                }
-
-            );
-            console.log(query.sql);
-            start();
-
+                    start();
+                })
+            })
         })
         .catch(error => {
             if (error.isTtyError) {
@@ -401,6 +412,4 @@ function updateEmployeeRole() {
 
 
 // Current issues:
-// Display manager name in show all employees query
-// Allow for blank manager- right now program ends if manager is blank
 // Update employee role

@@ -62,32 +62,15 @@ viewAll()
 
 function viewAll() {
     // working on view all
-    connection.query(`SELECT employees.employeeId, employees.firstName, employees.lastName, role.role, role.salary, department.departmentName, employees.managerId
-FROM department INNER JOIN (employees INNER JOIN role ON employees.roleId = role.roleId) ON department.departmentId = role.departmentId;
+    connection.query(`SELECT e.*, CONCAT (m.firstName, ' ', m.lastName) AS manager FROM employees AS e
+    LEFT JOIN employees AS m ON e.managerId = m.employeeId;;
 `, (err, data) => {
         if (err) throw err
         console.table(data)
         console.log("")
-
-    })
-
-    connection.query(`SELECT * FROM department`, (err, data) => {
-        if (err) throw err
-        console.table(data)
-        console.log("")
-
-    })
-
-    connection.query("SELECT * FROM role", (err, data) => {
-        if (err) throw err
-        console.table(data)
-
-        console.log("")
         start()
     })
-    
-    
-    
+
 }
 
 // 
@@ -98,12 +81,20 @@ function start() {
         .then(answers => {
 
             if (answers.todo == 'Add Department') {
-                addDepartment(answers.todo)
+                connection.query(`SELECT * FROM department`, (err, data) => {
+                    if (err) throw err
+                    console.table(data)
+                    addDepartment(answers.todo)
+                })
 
             }
             if (answers.todo == 'Add Role') {
-
-                addRole(answers.todo)
+                connection.query("SELECT * FROM role", (err, data) => {
+                    if (err) throw err
+                    console.table(data)
+                    addRole(answers.todo)
+                })
+                
             }
             if (answers.todo == 'Add Employee') {
                 addEmployee(answers.todo)
@@ -119,7 +110,7 @@ function start() {
             }
             if (answers.todo == 'Update Employee Role') {
                 updateEmployeeRole(answers.todo)
-            } else if (answers.todo =='Exit') {
+            } else if (answers.todo == 'Exit') {
                 process.exit()
             }
 
@@ -135,6 +126,8 @@ function start() {
         });
 }
 function addDepartment() {
+
+
     inquirer
         .prompt([
             {
@@ -174,6 +167,13 @@ function addDepartment() {
 
 
 function addRole() {
+
+    const departmentArray = []
+    connection.query(`SELECT departmentName FROM department`, (err, data) => {
+        if (err) throw err
+        data.forEach(element => departmentArray.push(element.departmentName))
+    })
+
     inquirer
         .prompt([
             {
@@ -187,9 +187,10 @@ function addRole() {
                 message: "Enter new role salary"
             },
             {
-                type: "input",
-                name: "deptId",
-                message: "Enter department ID"
+                type: "list",
+                name: "department",
+                message: "Select department",
+                choices: departmentArray
             },
         ])
         .then(answers => {
@@ -221,6 +222,19 @@ function addRole() {
 }
 
 function addEmployee() {
+    const roleArray = []
+    connection.query(`SELECT roleId, role FROM role`, (err, data) => {
+        if (err) throw err
+        data.forEach(element => roleArray.push(element.role))
+    })
+
+    const employeesArray = []
+    connection.query(`SELECT employees.firstName, employees.lastName FROM employees`, (err, data) => {
+        if (err) throw err
+
+        data.forEach(element => employeesArray.push(element.firstName + " " + element.lastName))
+
+    })
     inquirer
         .prompt([
             {
@@ -234,14 +248,16 @@ function addEmployee() {
                 message: "Enter new Employee last name"
             },
             {
-                type: "input",
-                name: "roleId",
-                message: "Enter new Employee's role id"
+                type: "list",
+                name: "role",
+                message: "Select new Employee's role",
+                choices: roleArray
             },
             {
-                type: "input",
-                name: "managerId",
-                message: "Enter new Employee's manager's id"
+                type: "list",
+                name: "manager",
+                message: "Select new Employee's manager",
+                choices: employeesArray
             },
         ])
         .then(response => {
@@ -261,7 +277,7 @@ function addEmployee() {
                     console.log(res.affectedRows);
                     console.log(query.sql);
                     // Call updateProduct AFTER the INSERT completes
-                    
+
                 }
 
             );
@@ -276,8 +292,8 @@ function addEmployee() {
                 // Something else when wrong
             }
         });
-}
 
+}
 function viewAllDepartments() {
     // Display all departments
 
@@ -297,10 +313,7 @@ function viewAllRoles() {
     //    Display all roles
     connection.query(`SELECT * FROM role`, (err, data) => {
         if (err) throw err
-        
         console.table(data)
-        
-
         start()
 
     })
@@ -312,61 +325,82 @@ function viewAllEmployees() {
     connection.query(`SELECT * FROM employees`, (err, data) => {
         if (err) throw err
         console.table(data)
-        console.log(data)
         start()
     })
 }
 
+
 function updateEmployeeRole() {
 
-    inquirer
-        .prompt([
-            {
-                type: "input",
-                name: "chooseEmployee",
-                message: "Enter Employee last name"
-            },
-            {
-                type: "input",
-                name: "chooseRoleId",
-                message: "Enter Employee's new role ID"
-            },
-        ])
-        .then(answers => {
-            var query = connection.query(
-                `UPDATE employees SET "roleId" WHERE "${answers.chooseEmployee}"`,
-                [
-                    {
-                        roleId: answers.chooseRoleId
+    const roleArray = []
+    connection.query(`SELECT roleId, role FROM role`, (err, data) => {
+        if (err) throw err
+        data.forEach(element => roleArray.push(element.role))
+    })
+
+
+    const employeesArray = []
+    connection.query(`SELECT employees.firstName, employees.lastName FROM employees`, (err, data) => {
+        if (err) throw err
+
+        data.forEach(element => employeesArray.push(element.firstName + " " + element.lastName))
+
+        inquirer
+            .prompt([
+                {
+                    type: "list",
+                    name: "chooseEmployee",
+                    message: "Select Employee last name",
+                    choices: employeesArray
+                },
+                {
+                    type: "list",
+                    name: "chooseRole",
+                    message: "Select Employee's new role",
+                    choices: roleArray
+                },
+            ])
+            .then(answers => {
+                var query = connection.query(
+                    `UPDATE employees SET "roleId" WHERE "${answers.chooseEmployee}"`,
+                    [
+                        {
+                            roleId: answers.chooseRoleId
+                        }
+                    ],
+                    function (err, res) {
+                        if (err) throw err;
+                        console.log(res.affectedRows);
+                        // Call deleteProduct AFTER the UPDATE completes
+
                     }
-                ],
-                function (err, res) {
-                    if (err) throw err;
-                    console.log(res.affectedRows);
-                    // Call deleteProduct AFTER the UPDATE completes
+                );
 
+                // logs the actual query being run
+                console.log(query.sql);
+                start();
+
+
+
+            })
+            .catch(error => {
+                if (error.isTtyError) {
+                    // Prompt couldn't be rendered in the current environment
+                } else {
+                    // Something else when wrong
                 }
-            );
-
-            // logs the actual query being run
-            console.log(query.sql);
-            start();
+            });
 
 
 
-        })
-        .catch(error => {
-            if (error.isTtyError) {
-                // Prompt couldn't be rendered in the current environment
-            } else {
-                // Something else when wrong
-            }
-        });
+    })
+
+
+
 }
 
 
 // Current issues:
 // Display manager name in show all employees query
-// Allow for blank manager
+// Allow for blank manager- right now program ends if manager is blank
 // Update employee role
-// Exit query

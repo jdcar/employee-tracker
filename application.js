@@ -21,7 +21,6 @@ connection.connect(err => {
     console.log(`Connected as id ${connection.threadId}`)
 })
 
-
 const startQuestion = [
     {
         type: 'list',
@@ -50,9 +49,7 @@ const startQuestion = [
             // 'Remove Employee', 
 
         ]
-
     }
-
 ]
 
 viewAll()
@@ -304,19 +301,13 @@ function addEmployee() {
 
 }
 function viewAllDepartments() {
-    // Display all departments
-
 
     connection.query(`SELECT * FROM department`, (err, data) => {
         if (err) throw err
         console.table(data)
-
         start()
-
     })
-
 }
-
 
 function viewAllRoles() {
     //    Display all roles
@@ -324,9 +315,7 @@ function viewAllRoles() {
         if (err) throw err
         console.table(data)
         start()
-
     })
-
 }
 
 function viewAllEmployees() {
@@ -339,7 +328,6 @@ function viewAllEmployees() {
     })
 }
 
-
 function updateEmployeeRole() {
 
     const roleArray = []
@@ -348,13 +336,11 @@ function updateEmployeeRole() {
         data.forEach(element => roleArray.push(element.role))
     })
 
-
     const employeesArray = []
     connection.query(`SELECT employees.firstName, employees.lastName FROM employees`, (err, data) => {
         if (err) throw err
         // console.log(data)
         data.forEach(element => employeesArray.push(element.firstName + " " + element.lastName))
-
 
         inquirer
             .prompt([
@@ -372,14 +358,7 @@ function updateEmployeeRole() {
                 },
             ])
             .then(answers => {
-                // console.log(answers)
-                // console.log(roleArray)
-                // console.log(employeesArray)
-
-
-                // Get the role ID based on the role title
-                // Update the role ID in the employees table
-
+      
                 connection.query(`SELECT roleId FROM role WHERE role = "${answers.chooseRole}";`, (err, data) => {
                     if (err) throw err
                     const role_id = data[0].roleId
@@ -392,12 +371,9 @@ function updateEmployeeRole() {
                         connection.query(sql, function (err, result) {
                             if (err) throw err;
                             console.log(result.affectedRows + " record(s) updated");
-                            
+                            start();
                         });
                     });
-
-                    // console.log(query.sql);
-                    start();
                 })
             })
     }).catch(error => {
@@ -409,5 +385,3 @@ function updateEmployeeRole() {
     });
 }
 
-// Current issues:
-// Update employee role

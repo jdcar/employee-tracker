@@ -364,16 +364,19 @@ function updateEmployeeRole() {
                     const role_id = data[0].roleId
                     console.log(role_id)
                     console.log(answers.chooseRole)
+                    console.log(answers.chooseEmployee)
 
                     connection.connect(function (err) {
                         if (err) throw err;
                         var sql = `UPDATE employees SET roleId = "${role_id}" WHERE CONCAT (employees.firstName, " " , employees.lastName) = "${answers.chooseEmployee}"`;
                         connection.query(sql, function (err, result) {
                             if (err) throw err;
-                            console.log(result.affectedRows + " record(s) updated");
-                            start();
+                            console.log(result);
+                            
                         });
+                        
                     });
+                    start();
                 })
             })
     }).catch(error => {

@@ -358,25 +358,21 @@ function updateEmployeeRole() {
                 },
             ])
             .then(answers => {
-      
+
                 connection.query(`SELECT roleId FROM role WHERE role = "${answers.chooseRole}";`, (err, data) => {
                     if (err) throw err
                     const role_id = data[0].roleId
-                    console.log(role_id)
-                    console.log(answers.chooseRole)
-                    console.log(answers.chooseEmployee)
+                    // console.log(role_id)
+                    // console.log(answers.chooseRole)
+                    // console.log(answers.chooseEmployee)
 
-                    connection.connect(function (err) {
-                        if (err) throw err;
-                        var sql = `UPDATE employees SET roleId = "${role_id}" WHERE CONCAT (employees.firstName, " " , employees.lastName) = "${answers.chooseEmployee}"`;
-                        connection.query(sql, function (err, result) {
+                    connection.query(`UPDATE employees SET roleId = "${role_id}" WHERE CONCAT (employees.firstName, " " , employees.lastName) = "${answers.chooseEmployee}"`,
+                        function (err, rows) {
                             if (err) throw err;
-                            console.log(result);
-                            
+                            // console.log(rows);
+                            start();
                         });
-                        
-                    });
-                    start();
+
                 })
             })
     }).catch(error => {

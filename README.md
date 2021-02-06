@@ -16,9 +16,9 @@ ISC. Copyright (c) 2021 Jamie Carlstone
 ## Screenshots
 * ![Add Department](img/add-department.JPG "Add department")
 * ![Add Employee](img/add-employee.JPG "Add employee")
-* ![Add Role](img/add-role.JPG "Add role")
+* ![Add Role](img/add-role.jpg "Add role")
 * ![Start](img/start.JPG "Start")
 * ![Update Employee Role](img/update-employee-role.JPG "Update Employee Role")
-* ![View Department](img/view-department.JPG "View departments")
+* ![View Department](img/view-department.jpg "View departments")
 * ![View Employees](img/view-employees.JPG "View employees")
-* ![View Roles](img/add-roles.JPG "View roles")
+* ![View Roles](img/add-roles.jpg "View roles")

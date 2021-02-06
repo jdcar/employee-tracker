@@ -19,6 +19,6 @@ ISC. Copyright (c) 2021 Jamie Carlstone
 * ![Add Role](img/add-role.jpg "Add role")
 * ![Start](img/start.JPG "Start")
 * ![Update Employee Role](img/update-employee-role.JPG "Update Employee Role")
-* ![View Department](img/view-department.jpg "View departments")
+* ![View Department](img/view-departments.jpg "View departments")
 * ![View Employees](img/view-employees.JPG "View employees")
-* ![View Roles](img/add-roles.jpg "View roles")
+* ![View Roles](img/views-roles.jpg "View roles")

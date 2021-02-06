@@ -265,8 +265,6 @@ function addEmployee() {
                 const role_id = data[0].roleId
                 console.log(role_id)
 
-
-
                 connection.query(`SELECT * , CONCAT (employees.firstName, ' ', employees.lastName) AS manager FROM employees WHERE CONCAT (employees.firstName, ' ', employees.lastName) = "${answers.manager}";`, (err, data) => {
                     if (err) throw err
                     const manager_id = data[0].employeeId
@@ -354,15 +352,16 @@ function updateEmployeeRole() {
     const employeesArray = []
     connection.query(`SELECT employees.firstName, employees.lastName FROM employees`, (err, data) => {
         if (err) throw err
-
+        // console.log(data)
         data.forEach(element => employeesArray.push(element.firstName + " " + element.lastName))
+
 
         inquirer
             .prompt([
                 {
                     type: "list",
                     name: "chooseEmployee",
-                    message: "Select Employee last name",
+                    message: "Select employee name",
                     choices: employeesArray
                 },
                 {
@@ -373,44 +372,42 @@ function updateEmployeeRole() {
                 },
             ])
             .then(answers => {
-                var query = connection.query(
-                    `UPDATE employees SET "roleId" WHERE "${answers.chooseEmployee}"`,
-                    [
-                        {
-                            roleId: answers.chooseRoleId
-                        }
-                    ],
-                    function (err, res) {
+                // console.log(answers)
+                // console.log(roleArray)
+                // console.log(employeesArray)
+
+
+                // Get the role ID based on the role title
+                // Update the role ID in the employees table
+
+                connection.query(`SELECT roleId FROM role WHERE role = "${answers.chooseRole}";`, (err, data) => {
+                    if (err) throw err
+                    const role_id = data[0].roleId
+                    console.log(role_id)
+                    console.log(answers.chooseRole)
+
+                    connection.connect(function (err) {
                         if (err) throw err;
-                        console.log(res.affectedRows);
-                        // Call deleteProduct AFTER the UPDATE completes
+                        var sql = `UPDATE employees SET roleId = "${role_id}" WHERE CONCAT (employees.firstName, " " , employees.lastName) = "${answers.chooseEmployee}"`;
+                        connection.query(sql, function (err, result) {
+                            if (err) throw err;
+                            console.log(result.affectedRows + " record(s) updated");
+                            
+                        });
+                    });
 
-                    }
-                );
-
-                // logs the actual query being run
-                console.log(query.sql);
-                start();
-
-
-
+                    // console.log(query.sql);
+                    start();
+                })
             })
-            .catch(error => {
-                if (error.isTtyError) {
-                    // Prompt couldn't be rendered in the current environment
-                } else {
-                    // Something else when wrong
-                }
-            });
-
-
-
-    })
-
-
-
+    }).catch(error => {
+        if (error.isTtyError) {
+            // Prompt couldn't be rendered in the current environment
+        } else {
+            // Something else when wrong
+        }
+    });
 }
-
 
 // Current issues:
 // Update employee role

@@ -17,6 +17,7 @@ Follow these instructions or watch this video: https://drive.google.com/file/d/1
 <li>Install packages using 'npm install' in the terminal</li>
 <li>Run program using 'node application' or 'npm start' in terminal</li>
 </ol>
+
 ## License
 ISC. Copyright (c) 2021 Jamie Carlstone
 ## Questions

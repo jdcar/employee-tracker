@@ -223,7 +223,7 @@ function addEmployee() {
         data.forEach(element => roleArray.push(element.role))
     })
 
-    const managersArray = []
+    const managersArray = ["No manager"]
     connection.query(`SELECT CONCAT (employees.firstName, ' ', employees.lastName) AS manager FROM employees;`, (err, data) => {
         if (err) throw err
 
@@ -264,8 +264,12 @@ function addEmployee() {
 
                 connection.query(`SELECT * , CONCAT (employees.firstName, ' ', employees.lastName) AS manager FROM employees WHERE CONCAT (employees.firstName, ' ', employees.lastName) = "${answers.manager}";`, (err, data) => {
                     if (err) throw err
-                    const manager_id = data[0].employeeId
 
+                    if (answers.manager == "No manager") {
+                        manager_id = null;
+                    } else {
+                        manager_id = data[0].employeeId
+                    }
 
                     var query = connection.query(
                         "INSERT INTO employees SET ?",
@@ -279,14 +283,14 @@ function addEmployee() {
                         function (err, res) {
 
                             if (err) throw err;
-                            console.log(res.affectedRows);
-                            console.log(query.sql);
+                            // console.log(res.affectedRows);
+                            // console.log(query.sql);
                             // Call updateProduct AFTER the INSERT completes
 
                         }
 
                     );
-                    console.log(query.sql);
+                    // console.log(query.sql);
                     start();
                 })
             })
